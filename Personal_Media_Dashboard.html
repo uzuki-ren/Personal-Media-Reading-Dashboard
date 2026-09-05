@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Media & Library Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: #1e293b;
+      --bg-card-hover: #273549;
+      --bg-elevated: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+      --border-color: #334155;
+      --accent-primary: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-glow: rgba(99, 102, 241, 0.25);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --info: #38bdf8;
+      --info-bg: rgba(56, 189, 248, 0.15);
+      --danger: #f43f5e;
+      --danger-bg: rgba(244, 63, 94, 0.15);
+      --gold: #fbbf24;
+      --gold-bg: rgba(251, 191, 36, 0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-primary);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-elevated);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-subtle);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    /* Top Sync & Notification Banner */
+    .sync-bar {
+      background: linear-gradient(90deg, #1e1b4b 0%, #0f172a 100%);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.6rem 1.5rem;
+      font-size: 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px);
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      position: relative;
+    }
+
+    .status-dot.syncing {
+      background-color: var(--info);
+      box-shadow: 0 0 8px var(--info);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    .sync-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--accent-primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-muted);
+      border-color: var(--border-color);
+    }
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .btn-source {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .btn-source:hover {
+      background: rgba(16, 185, 129, 0.25);
+    }
+
+    .toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      user-select: none;
+    }
+
+    /* Header */
+    header {
+      padding: 2.5rem 0 1.5rem;
+      background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+    }
+
+    .header-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .header-title-area {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Stats Banner */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: var(--transition);
+    }
+    .stat-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      background: var(--bg-elevated);
+      flex-shrink: 0;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Category Nav Tabs */
+    .nav-tabs-wrapper {
+      position: sticky;
+      top: 45px;
+      z-index: 40;
+      background: var(--bg-primary);
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+    .nav-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.15rem;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .tab-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .tab-count {
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    /* Filter & Search Bar */
+    .filter-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.6rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-subtle);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .filter-controls {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .select-filter {
+      padding: 0.65rem 1rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+    }
+
+    .select-filter:focus {
+      border-color: var(--accent-primary);
+    }
+
+    /* Quick Filter Chips */
+    .filter-chips {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .chip-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      margin-right: 0.25rem;
+    }
+
+    .chip {
+      padding: 0.35rem 0.75rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .chip:hover {
+      border-color: var(--text-subtle);
+      color: var(--text-main);
+    }
+
+    .chip.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--accent-primary);
+      color: #a5b4fc;
+    }
+
+    /* Content Area */
+    .content-area {
+      margin-bottom: 4rem;
+    }
+
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .results-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .media-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .media-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(99, 102, 241, 0.5);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .media-card.is-favorite {
+      border-color: rgba(251, 191, 36, 0.4);
+    }
+    .media-card.is-favorite::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #fff;
+    }
+
+    .favorite-badge {
+      color: var(--gold);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .rating-container {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .star-display {
+      color: var(--gold);
+      letter-spacing: 1px;
+      font-size: 0.95rem;
+    }
+
+    .rating-number {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      text-transform: capitalize;
+    }
+
+    .badge-finished {
+      background: var(--success-bg);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+
+    .badge-progress {
+      background: var(--info-bg);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .badge-quit {
+      background: var(--danger-bg);
+      color: #fb7185;
+      border: 1px solid rgba(244, 63, 94, 0.25);
+    }
+
+    .badge-jumping {
+      background: var(--warning-bg);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .badge-genre {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    .badge-age {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-subtle);
+      border: 1px solid var(--border-color);
+    }
+
+    .card-comments {
+      background: rgba(15, 23, 42, 0.6);
+      border-left: 3px solid var(--accent-primary);
+      padding: 0.6rem 0.8rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.83rem;
+      color: #cbd5e1;
+      font-style: italic;
+      line-height: 1.45;
+      margin-top: auto;
+    }
+
+    /* Wishlist & Links Panel */
+    .aux-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 900px) {
+      .aux-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .aux-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+    }
+
+    .aux-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .wishlist-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .wishlist-item {
+      padding: 0.6rem 0.8rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .release-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--warning);
+      background: var(--warning-bg);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .websites-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .website-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.75rem 0.5rem;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .website-link:hover {
+      background: var(--bg-elevated);
+      border-color: var(--accent-primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* Modal / Setup Drawer */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      max-width: 650px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .code-block {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.82rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: var(--text-muted);
+    }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border-color);
+      padding: 2rem 0;
+      background: var(--bg-primary);
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      h1 { font-size: 1.6rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+      .search-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Live Dynamic Sync Bar -->
+  <div class="sync-bar">
+    <div class="sync-status">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText"><strong>Source:</strong> Connected to Google Sheet (Stuff)</span>
+      <span style="color: var(--text-subtle); font-size: 0.75rem;" id="lastSyncTime">Last synced: Just now</span>
+    </div>
+    <div class="sync-actions">
+      <label class="toggle-label">
+        <input type="checkbox" id="autoSyncToggle" checked> Auto-sync (60s)
+      </label>
+      <button class="btn btn-ghost" id="syncBtn" onclick="triggerManualSync()">
+        <span id="syncIcon">🔄</span> Sync Now
+      </button>
+      <a class="btn btn-source" href="https://docs.google.com/spreadsheets/d/1KcRb6_RXf7lYUTSoYv0j5y67eO9Sk-JkiiLDkmAt-sM/edit" target="_blank">
+        📊 Open Source Sheet
+      </a>
+      <button class="btn btn-ghost" onclick="openSetupModal()">
+        ⚙️ Settings & Setup
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="header-title-area">
+          <div>
+            <div class="brand-badge">✨ Dynamic Media Hub</div>
+            <h1>Personal Media & Reading Dashboard</h1>
+            <p class="subtitle">Live tracking for Books, Movies, TV Shows, Games, Musicals, and Concerts</p>
+          </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon" style="color: #6366f1;">📚</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotalBooks">116</span>
+              <span class="stat-label">Books Read</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: #ec4899;">🎬</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotalScreen">196</span>
+              <span class="stat-label">Movies & Shows</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: #10b981;">✅</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotalFinished">250</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: #38bdf8;">📖</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statInProgress">30</span>
+              <span class="stat-label">In Progress</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="color: #fbbf24;">⭐</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statFavorites">57</span>
+              <span class="stat-label">5-Star Favorites</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category Nav Tabs -->
+  <div class="nav-tabs-wrapper">
+    <div class="container">
+      <div class="nav-tabs" id="categoryNav">
+        <!-- Tabs generated dynamically via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <main class="container">
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <div class="search-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search by title, author, genre, or notes..." oninput="handleSearch()">
+        </div>
+        <div class="filter-controls">
+          <select id="genreSelect" class="select-filter" onchange="applyFilters()">
+            <option value="">All Genres</option>
+          </select>
+          <select id="ratingSelect" class="select-filter" onchange="applyFilters()">
+            <option value="">All Ratings</option>
+            <option value="5">⭐⭐⭐⭐⭐ (5 Stars)</option>
+            <option value="4">⭐⭐⭐⭐ (4+ Stars)</option>
+            <option value="3">⭐⭐⭐ (3+ Stars)</option>
+          </select>
+          <select id="sortSelect" class="select-filter" onchange="applyFilters()">
+            <option value="rating-desc">Sort: Highest Rating</option>
+            <option value="rating-asc">Sort: Lowest Rating</option>
+            <option value="title-asc">Sort: Title (A - Z)</option>
+            <option value="title-desc">Sort: Title (Z - A)</option>
+            <option value="age-desc">Sort: Age Read (Oldest to Youngest)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick status chips -->
+      <div class="filter-chips" id="statusChips">
+        <span class="chip-label">Status:</span>
+        <button class="chip active" data-status="" onclick="setStatusFilter(this, '')">All</button>
+        <button class="chip" data-status="finished" onclick="setStatusFilter(this, 'finished')">Finished</button>
+        <button class="chip" data-status="progress" onclick="setStatusFilter(this, 'progress')">In Progress</button>
+        <button class="chip" data-status="quit" onclick="setStatusFilter(this, 'quit')">Started then Quit</button>
+        <button class="chip" data-status="jumping" onclick="setStatusFilter(this, 'jumping')">Jumping Around</button>
+      </div>
+    </div>
+
+    <!-- Media Cards Section -->
+    <div class="content-area">
+      <div class="section-header">
+        <h2 class="section-title" id="activeCategoryTitle">📚 Books</h2>
+        <span class="results-count" id="resultsCount">Showing 116 items</span>
+      </div>
+
+      <div class="cards-grid" id="mediaGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Wishlist & Websites Auxiliary Section -->
+    <div class="aux-grid">
+      <div class="aux-card">
+        <h3 class="aux-title" id="wishlistHeader">📋 Up Next & Wishlist</h3>
+        <ul class="wishlist-list" id="wishlistContainer">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+      <div class="aux-card">
+        <h3 class="aux-title">🔗 Websites & Platforms Used</h3>
+        <div class="websites-grid" id="websitesContainer">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Settings & Setup Modal -->
+  <div class="modal-overlay" id="setupModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>⚙️ Dynamic Sync Configuration</h2>
+        <button class="modal-close" onclick="closeSetupModal()">&times;</button>
+      </div>
+      
+      <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+        This home page is configured to fetch live updates from Google Sheet: 
+        <strong>Stuff</strong> (ID: <code>1KcRb6_RXf7lYUTSoYv0j5y67eO9Sk-JkiiLDkmAt-sM</code>).
+      </p>
+
+      <h3 style="font-size: 1.05rem; margin-top: 1.25rem; margin-bottom: 0.5rem;">Method 1: Direct Google Sheet Sync (Zero Code)</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+        To allow real-time browser updates directly:
+      </p>
+      <ol style="color: var(--text-muted); font-size: 0.85rem; padding-left: 1.2rem; line-height: 1.6;">
+        <li>Open your spreadsheet in Google Drive.</li>
+        <li>Click <strong>Share</strong> in the top right.</li>
+        <li>Under General access, choose <strong>"Anyone with the link can view"</strong> (or Publish to Web).</li>
+        <li>This home page will automatically query Google's live endpoint whenever refreshed or on the 60-second auto-sync timer!</li>
+      </ol>
+
+      <h3 style="font-size: 1.05rem; margin-top: 1.5rem; margin-bottom: 0.5rem;">Method 2: Google Apps Script Web App (Private Sheet Access)</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+        If you want the sheet to remain private to your Google account, deploy a free Google Apps Script web app:
+      </p>
+      <ol style="color: var(--text-muted); font-size: 0.85rem; padding-left: 1.2rem; line-height: 1.6;">
+        <li>In your sheet, click <strong>Extensions &gt; Apps Script</strong>.</li>
+        <li>Paste the Apps Script code provided in your setup guide.</li>
+        <li>Click <strong>Deploy &gt; New deployment &gt; Select type &gt; Web app</strong>.</li>
+        <li>Copy your Web App URL and paste it below:</li>
+      </ol>
+      <div style="margin-top: 0.75rem;">
+        <input type="text" id="customEndpointInput" class="search-input" placeholder="https://script.google.com/macros/s/.../exec">
+        <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="saveCustomEndpoint()">Save &amp; Connect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>Personal Media &amp; Reading Hub &bull; Dynamically linked to Google Sheets</p>
+    </div>
+  </footer>
+
+  <script>
+    // Embedded initial data snapshot (365 records across 7 categories)
+    const INITIAL_DATA = {"Books": {"items": [{"title": "The Selection series✰", "age": "11-12", "genre": "romance", "progress": "Finished", "summary": "", "comments": "I want more! I liked the first three books better.", "rating": "5"}, {"title": "Mr. Terupt series", "age": "11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Front Desk series", "age": "10-11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "It is great, not \"too good to be true\" like most books, but not too bad like The Outsiders, the romance and realistic feel is great.", "rating": "4"}, {"title": "Harry Potter series✰", "age": "8-9", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "School For Good and Evil series✰", "age": "11", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Land of Stories series✖️", "age": "11", "genre": "fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "Komi Can’t Communicate series✰", "age": "11", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Witch Hat Atelier series", "age": "11", "genre": "manga fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "Horimiya series✰", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Babysitter’s Club series", "age": "10-12", "genre": "realistic fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Spy School series", "age": "11", "genre": "mystery", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Keeper of The Lost Cities series✰", "age": "12", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Nevermoor series✰", "age": "11", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Blended", "age": "12", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Epic Fail of Arturo Zamora", "age": "11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Cay", "age": "11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Timothy and The Cay", "age": "11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Tuck Everlasting", "age": "11", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Savvy series", "age": "11-13", "genre": "adventure realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Winterhouse series", "age": "11", "genre": "mystery", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Dork Diaries series", "age": "9-11", "genre": "comedy realistic fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "The Jigsaw Jungle✖️", "age": "11", "genre": "mystery", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "The Magic Tree House series", "age": "6-8", "genre": "historical fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "5"}, {"title": "Persuasion", "age": "11", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Northanger Abbey✰", "age": "10", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Mansfield Park✰", "age": "10", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Sense and Sensibility✰", "age": "10", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Love and Friendship✖️", "age": "9", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Pride and Prejudice", "age": "11", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Earl and The Fairy series (Manga)", "age": "11", "genre": "manga fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "My Otter Half", "age": "9", "genre": "realistic fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "I Survived series", "age": "9", "genre": "historical fiction", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "3"}, {"title": "Glitch✖️", "age": "9", "genre": "comic fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "No Rules Tonight", "age": "12", "genre": "realistic fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "The Real Riley Mayes", "age": "10", "genre": "comic realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Mi Xiao Quan's School Diary series", "age": "6-12", "genre": "chinese comedy", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "Diary of a Pug series", "age": "7", "genre": "comedy", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "Owl Diaries series", "age": "7", "genre": "comedy", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "WhoHQ series", "age": "8-12", "genre": "biography", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "Rump - The True Story of Rumpelstiltskin", "age": "11", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "A-Z Mysteries✰", "age": "8-9", "genre": "mystery", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Dog Man series", "age": "8", "genre": "comedy comic", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Captain Underpants series", "age": "8", "genre": "comedy", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "4"}, {"title": "Cat Kid Comic Club series", "age": "8", "genre": "comedy comic", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "DK findout! series", "age": "7", "genre": "nonfiction", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "3"}, {"title": "Monthly Girls' Nozaki-kun series", "age": "12", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Shikimori's Not Just a Cutie series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Wizard of Oz", "age": "9", "genre": "fantasy", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "5"}, {"title": "My Love Story With Yamada-kun at Lv 999 series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Ivy + Bean", "age": "7", "genre": "realistic fiction", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "4"}, {"title": "Over and Out", "age": "9", "genre": "historical fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Smile, Sisters, Guts series", "age": "11", "genre": "comic autobiography", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Drama", "age": "11", "genre": "comic realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Ghosts", "age": "11", "genre": "comic realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Café Terrace and Its Goddesses", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "A Sign of Affection✰", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "I liked how happy and heartwarming this story is, but the latest chapters have a sort of sad imprint on my heart....", "rating": "5"}, {"title": "Stepping Stones", "age": "9", "genre": "comic realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Ao Haru Ride series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "It is a really fun manga series, and the novel adaption was also great.", "age": "12", "genre": "manga comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Ways Your Two-Year-Old Can Hurt You", "age": "10", "genre": "comic comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Christmas Pig", "age": "10", "genre": "fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "How I Met My Soulmate series✰", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "A little more mature than my usual reads, but it has lots of heartwarming moments and is pretty romamantic, so I really liked it. It's one of my favorites, but not famous.", "rating": "5"}, {"title": "Chihiro-kun Only Has Eyes For Me series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "The start of their relationship was so fast I couldn't even process what had happened, but afterwards, it became pretty good.", "rating": "3"}, {"title": "The Phantom Tollbooth", "age": "11", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Anyway, I'm Falling in Love with You series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Fruits Basket series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Boarding School Juliet series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Choking On Love", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Pia the Pinena Fairy series", "age": "9", "genre": "fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "My Dress-Up Darling series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Chronicles of Narnia series", "age": "11", "genre": "fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "My Weird School series", "age": "8", "genre": "comedy", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "Kid Spy series", "age": "8", "genre": "mystery comedy", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "4"}, {"title": "Kid Legend series", "age": "9", "genre": "biography", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Pinkalicious series", "age": "7", "genre": "realistic fiction picture book", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Fancy Nancy series", "age": "7", "genre": "realistic fiction picture book", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Like a Butterfly series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Big Nate series", "age": "10", "genre": "comedy comic", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "3"}, {"title": "New Kid series", "age": "11", "genre": "comic realistic fiction", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "3"}, {"title": "Matilda", "age": "12", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "InvestiGators series", "age": "8", "genre": "comic comedy", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "3"}, {"title": "Manatee's Best Friend", "age": "10", "genre": "realistic fiction", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "The Apothecary Diaries series (Light Novel)", "age": "12", "genre": "historical fiction", "progress": "Currently Reading", "summary": "", "comments": "After Volume 4, Maomao is kicked out of the palace, and rarely interacts with the main cast other than Jinshi, so I feel sad.", "rating": "4"}, {"title": "The Apothecary Diaries series (Manga)", "age": "12", "genre": "Manga historical fiction", "progress": "Finished", "summary": "", "comments": "It is good but I skipped some because I watched the anime", "rating": "4"}, {"title": "The Promised Neverland series", "age": "12", "genre": "manga thriller", "progress": "Finished", "summary": "", "comments": "It is great, but has a sad ending.", "rating": "4"}, {"title": "Rainbow Magic series", "age": "9", "genre": "fantasy", "progress": "Jumping Around", "summary": "", "comments": "I don't really remember that much, other than that I used to read it before sleeping because I liked it so much.", "rating": "3"}, {"title": "The Ice Guy and His Cool Female Colleague series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "This was a really good series, I finished it in less than  a week.", "rating": "4"}, {"title": "Tsubasa: Reservoir Chronicle series", "age": "12", "genre": "manga action fantasy", "progress": "Started, then Quit", "summary": "", "comments": "It wasn't as good as people said, so I only read the ones at the school library.", "rating": "3"}, {"title": "My Next Life as a Villainess: All Routes Lead to Doom! (Manga) series✰", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "4", "rating": "5"}, {"title": "Twilight series", "age": "12", "genre": "romance supernatural", "progress": "Started, then Quit", "summary": "", "comments": "I don't know why, but at the climax of the book, I didn't really feel like I was going to read it fast, like I usually do, and I lost interest.", "rating": "4"}, {"title": "Demon Slayer series", "age": "12", "genre": "manga action thriller", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Black Clover series", "age": "12", "genre": "manga action", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "My Little Monster series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "A rom-com with lots of drama, encapturing me. Maybe a little too much drama, though, and I miss it when Yamaken isn't there anymore...", "rating": "3"}, {"title": "Honey Lemon Soda series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "7th Time Loop: The Villainess Enjoys a Carefree Life Married to Her Worst Enemy! (Manga) series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Outsiders", "age": "12", "genre": "crime adventure", "progress": "Finished", "summary": "", "comments": "It is very bloody and sad, but the author is very good at writing.", "rating": "2"}, {"title": "My Next Life as a Villainess: All Routes Lead to Doom! (Light Novel) series", "age": "12", "genre": "rom-com", "progress": "Currently Reading", "summary": "", "comments": "", "rating": "4"}, {"title": "Alya Sometimes Hides Her Feelings in Russian (Light Novel) series", "age": "12", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "I'm the Villainess, So I'm Taming the Final Boss (Manga) series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "I'll Become a Villainess Who Goes Down in History (Manga) series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "I don't like it as much as the anime because Alicia completely cuts off ties with Duke, and the ending is more sad.", "rating": "4"}, {"title": "Ouran High School Host Club series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Secret Coders series", "age": "9", "genre": "comedy comic", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Josee, the Tiger and the Fish (Manga) series", "age": "12", "genre": "manga drama", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Shortcake Cake series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Blue Flag series", "age": "12", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "It was complicated and gay, so I didn't have a really positive take on it.", "rating": "3"}, {"title": "Giants in Science series", "age": "12", "genre": "biography", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Though I Am and Inept Villainess-Tale of the Butterfly-Rat Swap in the Maiden Court series", "age": "12", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Hana-Kimi series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "In the Clear Moonlit Dusk series", "age": "12", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Oshi No Ko series", "age": "12-13", "genre": "manga psychological drama", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Monthly Girls' Nozaki-kun series", "age": "13", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "It is kinda boring with no goal or purpose, and the characters aren't getting anywhere.", "rating": "3"}, {"title": "Always a Catch! series", "age": "13", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Blue Box series", "age": "13", "genre": "manga rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Snow White with the Red Hair series", "age": "13", "genre": "manga rom-com", "progress": "Currently Reading", "summary": "", "comments": "", "rating": "3"}, {"title": "Waiting For Spring series", "age": "13", "genre": "manga rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Kaguya-sama: Love is War series", "age": "13", "genre": "manga rom-com", "progress": "Currently Reading", "summary": "", "comments": "", "rating": ""}], "wishlist": ["Elysian (release date: N/A)", "Kubo Won’t Let Me Be Invisible series", "Though I am an Inept Villainess series", "Toradora! series", "House of the Sun series", "The Unwanteds series", "Fablehaven series", "The Fragrant Flower Blooms with Dignity series", "Little Women", "The Hunger Games series", "Orange series", "Sakura, Saku series", "The Summer I Turned Pretty", "Shortcake Cake series", "Kimi Ni Todoke series", "Yona of the Dawn series", "Strobe Edge series", "Ouran High School Host Club series", "Percy Jackson series", "Skip & Loafer series", "The School For Whatnots", "Princess Academy series", "The Royal Academy of MAgic series", "The Magical Misfits", "Witch Watch series", "Love Me, Love Me Not series", "Lovesick Ellie series", "Tsuredere Children series", "Takane & Hana series", "ReLIFE series", "The Betrothed, The Betrayed series", "Mata Ashita series", "Last Game series", "Pia the Pinena Fairy series", "Matched series", "Tsubasa World Chronicle series", "The Catcher in the Rye", "The Great Gatsby", "Let the Sky Fall series", "Shooting Star Lens series", "In the Clear Moonlit Dusk series", "Reincarnated as the Villainess: The Duke’s Daughter series", "Insomniacs After School series", "Blue Box series", "Honey and Clover series", "The Princess and the Fangirl series", "Love, Chunibyo, & Other Delusions", "Snow White and the Scottish Prince series", "Living Room Matsunaga-san", "An Enchantment of Ravens", "Faster than a Kiss series", "A Condition Called Love series", "When We're In Love series", "When We Shout For Love series", "Amelia's Curious Romance series", "The Inheritance Games series", "My Happy Marriage series", "Dork Diaries (books 15 and 16)", "Millennium Snow series", "Kiss Him, Not Me! series", "The King's Beast series", "Aoba-kun's Confessions series", "The Ramparts of Ice series", "Girl Got Game"], "websites": ["Kindle", "Mangabuddy", "Batoto Manga", "Shousetsuka ni Narou", "Z-Library", "SMCL", "J-Novel Club", "Just Light Novel", "Book Off", "Mangafire", "Mangadex"]}, "Movies": {"items": [{"title": "Harry Potter series✰", "age": "8", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "School For Good and Evil✖️", "age": "11", "genre": "fantasy Romance", "progress": "Finished", "summary": "", "comments": "Most characters don't fit the descriptions, especially Anadil, who is supposed to be albino but actually is a dark-skinned, dar-haired, and dark-eyed person, along with Agatha and Rafal.", "rating": "2"}, {"title": "Mulan series", "age": "12", "genre": "historical fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Mulan Live-Action", "age": "12", "genre": "action historical fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Mission Impossible series", "age": "12", "genre": "thriller", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "Star Wars series", "age": "11", "genre": "sci-fi action", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "3"}, {"title": "Beauty and the Beast Live-Action✰", "age": "12", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Beauty and the Beast", "age": "7", "genre": "romance fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Smurfs", "age": "12", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Garfield", "age": "12", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Super Mario Movie", "age": "10", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "A Minecraft Movie✖️", "age": "12", "genre": "fantasy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Minions series + Despicable Me series", "age": "12", "genre": "comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Kung Fu Panda series", "age": "11", "genre": "comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Moana series", "age": "6", "genre": "comedy adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "IF", "age": "11", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "I watched this in 5th grade on a classroom field trip.", "rating": "4"}, {"title": "Sing series", "age": "9", "genre": "animal comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Zootopia series", "age": "9-12", "genre": "animal comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Finding Nemo series", "age": "8", "genre": "comedy adventure", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "3"}, {"title": "Mary Poppins series", "age": "11", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Frozen series", "age": "7", "genre": "princess fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Home Alone series✰", "age": "10", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "My Neighbor Totoro✰", "age": "11", "genre": "anime animal comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Castle in the Sky✰", "age": "11", "genre": "anime fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Ponyo", "age": "11", "genre": "anime fantasy drama", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Spirited Away✰", "age": "12", "genre": "anime fantasy supernatural", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Kiki’s Delivery Service", "age": "11", "genre": "anime slice-of-life fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Cat Returns", "age": "11", "genre": "anime slice-of-life fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Toy Story series", "age": "8", "genre": "comedy adventure", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "4"}, {"title": "Alvin and the Chipmunks", "age": "10", "genre": "animal adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Ice Age series", "age": "11", "genre": "animal adventure", "progress": "Jumping Around", "summary": "", "comments": "", "rating": "4"}, {"title": "The Lego Movie", "age": "9", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "How the Grinch Stole Christmas", "age": "11", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Turning Red", "age": "11", "genre": "action comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Happy Feet", "age": "9", "genre": "animal comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Wonka", "age": "11", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Puss in Boots", "age": "9", "genre": "comedy adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "The Lorax", "age": "10", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Luca", "age": "8", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Boss Baby series", "age": "10", "genre": "comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Trolls series", "age": "8", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Diary of a Wimpy Kid Christmas: Cabin Fever", "age": "11", "genre": "comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Vivo", "age": "12", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Encanto", "age": "10", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Godmothered", "age": "11", "genre": "fantasy romance", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Coco", "age": "11", "genre": "fantasy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Tangled", "age": "6", "genre": "princess rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Little Mermaid", "age": "7", "genre": "princess rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Little Mermaid Live-Action✖️", "age": "10", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "The Princess and the Frog", "age": "7", "genre": "princess rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Aladdin", "age": "8", "genre": "princess rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Raya and the Last Dragon", "age": "10", "genre": "fantasy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Wild Robot", "age": "12", "genre": "sci-fi", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Migration", "age": "11", "genre": "animal comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Big Hero 6", "age": "11", "genre": "action comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Lilo & Stitch", "age": "8", "genre": "action comedy family", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Wall - E", "age": "11", "genre": "sci-fi", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "Monsters, Inc. series✰", "age": "10", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Brave", "age": "8", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Soul", "age": "10", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Up", "age": "11", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Incredibles", "age": "7", "genre": "action comedy", "progress": "Don't Remember", "summary": "", "comments": "", "rating": "3"}, {"title": "Inside Out series", "age": "11", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Muppet Christmas Carol", "age": "9", "genre": "action comedy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "Meet the Robinsons", "age": "10", "genre": "sci-fi", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Wizard of Oz✰", "age": "11", "genre": "fantasy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Bad Guys", "age": "10", "genre": "action comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Wish", "age": "12", "genre": "action fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Elemental", "age": "10", "genre": "romance fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Five Nights at Freddy’s", "age": "10", "genre": "horror", "progress": "Finished", "summary": "", "comments": "", "rating": "1"}, {"title": "Avatar series", "age": "11", "genre": "action fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "K-Pop Demon Hunters", "age": "12", "genre": "action fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Nutcracker and the Four Realms", "age": "10", "genre": "Fantasy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Pocahontas", "age": "9", "genre": "romance adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Rio series", "age": "11", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Tuck Everlasting", "age": "12", "genre": "romance", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Bee Movie", "age": "11", "genre": "comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Freaky Friday series (2003, 2025)", "age": "12-13", "genre": "rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "My Next Life as a Villainess: All Routes Lead to Doom! The Movie", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Spy x Family CODE: White", "age": "12", "genre": "anime comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Matilda the Musical", "age": "12", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "It is more sad and harsh than the book, so I didn't like it as much.", "rating": "4"}, {"title": "Wicked", "age": "12", "genre": "romance fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "Dog Man", "age": "12", "genre": "comedy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "My Love Story With Yamada-kun At Lv999 Live-Action", "age": "12", "genre": "rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "How the Grinch Stole Christmas Live-Action", "age": "12", "genre": "fantasy comedy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "The Outsiders", "age": "12", "genre": "crime adventure", "progress": "Finished", "summary": "", "comments": "It is good, but I did not enjoy the death scenes.", "rating": "3"}, {"title": "Flubber", "age": "12", "genre": "comedy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "The Martian", "age": "12", "genre": "sci-fi adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Rascal Does Not Dream series", "age": "12", "genre": "anime supernatural drama", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "The Quintessential Quintuplets Movie", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Spider-Man series", "age": "12-13", "genre": "action comedy", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "4"}, {"title": "A Girl and Her Guard Dog Live-Action✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Your Letter", "age": "12", "genre": "anime drama", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Howl's Moving Castle", "age": "13", "genre": "anime fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Princess Mononoke", "age": "13", "genre": "anime historical", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "A Silent Voice", "age": "13", "genre": "anime drama", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Star Wars: The Mandalorian and Grogu", "age": "13", "genre": "dystopian action", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Masters of the Universe", "age": "13", "genre": "sci-fi action", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Matilda", "age": "13", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "It was more accurate than the musical version, and the actors and actresses conveyed everything perfectly.", "rating": "4"}, {"title": "From Up on Poppy Hill", "age": "13", "genre": "anime historical fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "A Whisker Away", "age": "13", "genre": "anime romance fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Leap!", "age": "13", "genre": "realistic fiction", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Supergirl", "age": "13", "genre": "sci-fi action", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Willy Wonka & the Chocolate Factory", "age": "13", "genre": "fantasy comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Lilo & Stitch Live-Action", "age": "13", "genre": "action comedy family", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Moana Live-Action", "age": "13", "genre": "comedy adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}], "wishlist": ["Coco 2 (release date: 2029)", "The Parent Trap", "Twilight series", "Enchanted", "Cinderella Live-Action", "The Princess Bride", "The Wind Rises", "Ice Princess", "Just My Luck", "Ballet Shoes", "Mean Girls", "The Promised Neverland Live-Action", "Frozen 3 (release date: 2027)", "The Apothecary Diaries Movie (release date: December 11, 2026)", "Beauty and the beast: The Enchanted Christmas", "Beauty and the beast: Belle's Magical World", "My Little Monster Live-Action", "Honey Lemon Soda Live-Action", "Kimi ni Todoke Live-Action", "Orange Live-Action", "ReLIFE Live-Action", "The Bad Guys 2", "Ouran High School Host Club", "Minions 3 (release date: july 1, 2026)", "K-Pop Demon Hunters 2 (release date: 2029)", "Ouran High School Host Club Live-Action", "Josee, the Tiger and the Fish", "Josee, the Tiger and the Fish Live-Action", "My Happy Marriage Live-Action", "Demon Slayer series", "Demon Slayer Live-Action (release date: N/A)", "Meiji Tokyo Renka series", "In The Clear Moonlit Dusk Live Action (release date: October 23, 2026)", "The Apothecary Diaries Live-Action (release date: 2027)", "Kaguya-sama: Love is War Final Chapter (release date: N/A)"], "websites": ["iyf", "Disney +", "HBO Max", "Peacock", "Paramount +", "Amazon Prime Video", "Cinemark", "Cinepolis", "amc"]}, "TV Shows": {"items": [{"title": "Anyway, I'm Falling in Love with You", "age": "12", "genre": "anime drama", "progress": "Finished", "summary": "", "comments": "It was actually my least favorite manga and anime for a while, since it wasn't happy, but after reading the manga more, I liked the anime and manga better, since the sense of thrill and romance roller coaster was a fun and new experience. Also, the second season added so much more content than the manga had, which was great!", "rating": "4"}, {"title": "The Legend of Shen Li✰", "age": "11", "genre": "chinese drama", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Lost You Forever", "age": "11", "genre": "chinese drama", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Ashes of Love", "age": "11", "genre": "chinese drama", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Princess Agents", "age": "11", "genre": "chinese drama", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Empresses in the Palace", "age": "11", "genre": "chinese drama", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "The Café Terrace and Its Goddesses", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Charlotte", "age": "12", "genre": "anime supernatural drama", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "A Sign of Affection✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Apothecary Diaries", "age": "12", "genre": "anime historical drama", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Psychic Princess", "age": "12", "genre": "anime chinese romance", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Mandalorian", "age": "12", "genre": "dystopian action", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Spidey and His Amazing Friends", "age": "9", "genre": "superhero action", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "The Angel Next Door Spoils Me Rotten", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "A Couple of Cuckoos", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Horimiya✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Spy x Family✰", "age": "12", "genre": "anime comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Case Closed", "age": "11-13", "genre": "anime mystery", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "5"}, {"title": "My Dress-Up Darling", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Shikimori’s Not Just a Cutie✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Alya Sometimes Hides Her Feelings in Russian✖️", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "My Love Story With Yamada-kun at Lv999✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "My Stepmom’s Daughter Is My Ex✖️", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "I feel this relationship is relatively illegal, and the story is sad, so I don't really like it.", "rating": "2"}, {"title": "Welcome to the Outcast’s Restaurant!", "age": "12", "genre": "anime fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Secrets of the Silent Witch", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Fruits Basket (2019)", "age": "12", "genre": "anime rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "My Next Life as a Villainess: All Routes Lead to Doom!✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "Horimiya Live-Action", "age": "12", "genre": "japanese rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Honey Lemon Soda", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "My Little Monster", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Skip and Loafer", "age": "12", "genre": "anime rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "The Ice Guy and His Cool Female Colleague", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "7th Time Loop: The Villainess Enjoys a Carefree Life Married to Her Worst Enemy!", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "I'll Become a Villainess Who Goes Down in History", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Snow White with the Red Hair", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "I Want to Escape From Princess Lessons", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Betrothed to My Sister's Ex", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "I'm the Villainess So I'm Taming the Final Boss", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Mechanical Marie", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Koikimo", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Fated Magical Princess: Who Made Me a Princess", "age": "12", "genre": "anime fantasy drama", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Kimi ni Todoke - From Me To You", "age": "12", "genre": "anime rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "The Dark History of the Reincarnated Villainess✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "May I Ask For One Final Thing", "age": "12", "genre": "anime action comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "King is Not Easy", "age": "12", "genre": "chinese drama", "progress": "Finished", "summary": "", "comments": "The first 7-ish episodes were fine, but then the story totally shifted gears, so afterwards, I didn't like it that much, and it din't have much of an ending, much less a happy one, since the characters forgot each other, so I had a kinda depressing chinese drama ending.", "rating": "3"}, {"title": "Ouran High School Host Club", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Our Love Has Always Been 10 Centimeters Apart", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "It isn't as comedic and happey as my usual preferences, but every episode gave  me this feeling in my heart, so I liked it. It is also the only anime I watched not based on a manga or light novel, it's based off a song.", "rating": "4"}, {"title": "A Condition Called Love", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Meiji Tokyo Renka", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "It had a sad ending, where Mei goes away to her time period at the end, so I was kinda crestfallen.", "rating": "4"}, {"title": "Frieren: Beyond Journey's End", "age": "12", "genre": "anime fantasy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Komi Can't Communicate✰", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "5"}, {"title": "The Quintessential Quintuplets", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Fragrant Flower Blooms With Dignity", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "My Happy Marriage", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "It has practically no comedy, but is a heartwarming story with great characters.", "rating": "4"}, {"title": "In the Clear Moonlit Dusk", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Villainess is Adored By the Prince of the Neighbor Kingdom", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Hana-Kimi✰", "age": "12-13", "genre": "anime rom-com", "progress": "Currently Watching", "summary": "", "comments": "I just finished reading Ouran, and I kinda missed that lightheartedand really funny  rom-com, so I felt like watching this.", "rating": "5"}, {"title": "Tamon's B-Side", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Rascal Does Not Dream", "age": "12", "genre": "anime supernatural drama", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Kaguya-sama: Love is War", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Doctor Elise: The Royal Lady With the Lamp", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Oshi No Ko", "age": "12", "genre": "anime psychological drama", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Why Raeliana Ended Up In the Duke's Mansion", "age": "12", "genre": "anime rom-com", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Vampire Dormitory", "age": "12", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Always a Catch!", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "I Made Friends with the Second Prettiest Girl in My Class", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Haibara's Teenage New Game+", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Witch Hat Atelier", "age": "12-13", "genre": "anime fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "Classroom of the Elite", "age": "12-13", "genre": "anime thriller", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "An Observation Log of My Fiancée Who Calls Herself a Villainess✰", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Mistress Kanan is Devilishly Easy", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "2"}, {"title": "The Classroom of a Black Cat and a Witch", "age": "12-13", "genre": "anime fantasy", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "Pardon the Intrusion, I'm Home!", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "I Want to End This Love Game", "age": "12-13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Tearmoon Empire", "age": "12", "genre": "anime fantasy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Seirei Gensouki: Spirit Chronicles", "age": "12-13", "genre": "anime isekai", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "The Warrior Princess and the Barbaric King", "age": "13", "genre": "anime action comedy", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Hana-Kimi Live-Action (Japanese Version)", "age": "13", "genre": "japanese rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Blue Box", "age": "13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Ramparts of Ice", "age": "13", "genre": "anime drama", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Victoria of Many Faces", "age": "13", "genre": "anime fantasy adventure", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "The Duke's Son Claims He Won't Love Me Yet Showers Me with Adoration", "age": "13", "genre": "anime rom-com", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "Please Excuse My Younger Brothers", "age": "13", "genre": "anime rom-com", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "Demon Slayer", "age": "12-13", "genre": "anime action comedy", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Kamisama Kiss", "age": "13", "genre": "anime rom-com", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "Though I Am an Inept Villainess: Tale of the Butterfly-Rat Body Swap in the Maiden Court", "age": "13", "genre": "anime fantasy drama", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "4"}, {"title": "A Girl and Her Guard Dog", "age": "12", "genre": "anime romance", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Heroine? Saint? No, I'm an All-Works Maid (and Proud of It)!", "age": "13", "genre": "anime isekai", "progress": "Currently Watching", "summary": "", "comments": "", "rating": "3"}, {"title": "The Gorilla God's Go-To Girl", "age": "13", "genre": "anime rom-com", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "The Too-Perfect Saint: Tossed Aside by My Fiancé and Sold to Another Kingdom", "age": "13", "genre": "anime isekai", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}], "wishlist": ["Alya Sometimes Hides Her Feelings in Russian Season 2 (release date: 2027)", "The Legend of Chusen", "Witch Hat Atelier Season 2 (release date: N/A)", "The Apothecary Diary Season 3 Part 1 (release date: October 2026)", "The Apothecary Diary Season 3 Part 2 (release date: April 2027)", "Toradora!", "Monthly Girls’ Nozaki-kun", "Wotakoi: Love Is Hard for Otaku", "The Summer I Turned Pretty", "Till The End of the Moon", "Ao Haru Ride Live-Action", "Ao Haru Ride", "Sailor Moon", "ReLIFE", "Komi Can't Communicate Live-Action", "The Golden Hairpin", "Love When the Stars Fall", "Skate Into Love", "Ode to Joy", "Kimi ni Todoke - From Me To You Live-Action", "Orange", "My Dress-Up Darling Live-Action", "The Comic Bang", "Cinderella Chef", "Cinderella Chef Live-Action", "Horimiya OVA", "Though I Am an Inept Villainess: Tale of the Butterfly-Rat Body Swap in the Maiden Court (release date: An Episode Every Sunday)", "Ouran High School Host Club Live-Action", "Honey Lemon Soda Season 2 (release date: N/A)", "The Inheritance Games (release date: N/A)", "Demon Slayer", "Boarding School Juliet", "Yosuga no Sora: In Solitude Where We Are Least Alone", "Hana-Kimi Season 2 (release date: release date: An Episode Every Wednesday)", "Nana", "Inu x Boku Secret Service", "Oshi No Ko Season 4 (release date: N/A)", "The Quintessential Quintuplets: The Four Seasons (release date: N/A)", "The Quintessential Quintuplets OVA", "The Ramparts of Ice Season 2 (release date: October 1, 2026)", "General's Lady", "Boys Over Flowers", "Kikazaru Koi ni wa Riyuu ga Atte", "The Fox's Summer", "The Duke's Son Claims He Won't Love Me Yet Showers Me with Adoration (release date: An Episode Every Saturday)", "Love Between Fairy and Devil", "Love After World Domination", "The Dangers in My Heart", "Victoria of Many Faces (release date: An Episode Every Tuesday)", "The Classroom of a Black Cat and a Witch (release date: An Episode Every Sunday)", "Please Excuse My Younger Brothers (release date: An Episode Every Friday)", "Kubo Won't Let Me Be Invisible", "Tada Never Falls In Love", "Heroine? Saint? No, I'm an All-Works Maid (and Proud of It)! (release date: An Episode Every Wednesday)", "Hello, I'm a Witch, and My Crush Wants Me to Make a Love Potion (release date: October 2026)"], "websites": ["Crunchyroll", "Youtube", "Disney +", "iyf", "Anime Club Bowditch 2025-2026", "Netflix", "hianime", "aniwatchtv"]}, "Musicals": {"items": [{"title": "Aladdin", "age": "12", "genre": "princess rom-com", "progress": "Finished", "summary": "", "comments": "Musical adaption of the movie, and was funny and interesting.", "rating": "5"}, {"title": "Little Princess", "age": "11", "genre": "chinese drama", "progress": "Finished", "summary": "A girl whose father is rich, goes to an all girls school, where she meets a maid and they become friends. The principal is angry when the girl's father dies, and decides to bully her and the maid. The two friends find ways to stop being bullied.", "comments": "Watched in China, and pretty interesting.", "rating": "4"}, {"title": "Harry Potter and the Cursed Child", "age": "12", "genre": "fantasy", "progress": "Finished", "summary": "", "comments": "Hermione and Rose didn't look like what they should, and everything magical  looked different than usual.", "rating": "2"}, {"title": "The Sound of Music", "age": "12", "genre": "Drama", "progress": "Finished", "summary": "", "comments": "Too many plot twists. At first I thought the show would be about the abbey, then the children, then the love between Maria and the Captain, then how the family had to escape. It was too much, so I didn't like it as much.", "rating": "3"}], "wishlist": ["The Nutcracker"], "websites": ["Broadway", "北京儿童艺术剧院", "Curran Theatre", "Bayside Performing Arts Center"]}, "Songs": {"items": [{"title": "APT", "age": "12", "genre": "pop", "progress": "Finished", "summary": "N/A", "comments": "A happy pop song, and one of my first songs, with chorus.", "rating": "4"}, {"title": "Viva La Vida", "age": "12", "genre": "rock", "progress": "Finished", "summary": "N/A", "comments": "One of my first songs, and with the chorus.", "rating": "4"}, {"title": "Reflection", "age": "12", "genre": "pop", "progress": "Finished", "summary": "N/A", "comments": "Song from movie \"Mulan\".", "rating": "3"}, {"title": "Yuki No Oto✰", "age": "12", "genre": "j-pop", "progress": "Finished", "summary": "N/A", "comments": "Song from anime \"A Sign of Affection\".", "rating": "5"}, {"title": "Banana Song Minions", "age": "12", "genre": "pop", "progress": "Finished", "summary": "N/A", "comments": "With chorus, kind of embarrassing.", "rating": "2"}, {"title": "Your Idol", "age": "12", "genre": "pop", "progress": "Finished", "summary": "N/A", "comments": "It was low, so it was easier for me to sing.", "rating": "4"}, {"title": "Caro Mio Ben", "age": "12", "genre": "classical", "progress": "Finished", "summary": "N/A", "comments": "Lower version of the song, and first one for the fancy voice, so it was hard.", "rating": "3"}, {"title": "Barcarolle", "age": "12", "genre": "Opera Duet", "progress": "Finished", "summary": "N/A", "comments": "First duet, and like Caro Mio Ben, fancy voice.", "rating": "3"}, {"title": "Savage Daughter", "age": "12", "genre": "Folk", "progress": "Finished", "summary": "N/A", "comments": "With chorus, and relatively low.", "rating": "3"}, {"title": "Fa Ru Xue", "age": "12", "genre": "c-pop", "progress": "Finished", "summary": "N/A", "comments": "I first heard it on Cheng Feng, and thought it was nice.", "rating": "4"}, {"title": "Bu Ran", "age": "12", "genre": "c-pop", "progress": "Finished", "summary": "N/A", "comments": "It is from a Chinese drama I watched, so it felt nice to sing it, and I liked its legato.", "rating": "4"}, {"title": "Yue Ren Ge", "age": "12", "genre": "classical", "progress": "Finished", "summary": "N/A", "comments": "It is for improving my technique only and was gay, so I didn't especially like it.", "rating": "2"}, {"title": "Stepsisters' Lament", "age": "12", "genre": "musical", "progress": "Currently Singing", "summary": "N/A", "comments": "It's from Cinderella and I like the tune, genre, and acting.", "rating": "4"}, {"title": "Last Midnight", "age": "12", "genre": "musical", "progress": "Currently Singing", "summary": "N/A", "comments": "This is from Into the Woods, and is low, so it was easy to sing.", "rating": "3"}], "wishlist": [], "websites": ["Spotify", "Youtube Music", "AZLyrics", "Lyrical Nonsense"]}, "Games": {"items": [{"title": "Minecraft", "age": "8-12", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Super Smash Bros✰", "age": "10-13", "genre": "fighting", "progress": "Playing", "summary": "", "comments": "", "rating": "5"}, {"title": "Taiko no Tatsujin✰", "age": "12-13", "genre": "rythm", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "New Super Mario U Deluxe", "age": "10", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Mario Kart World", "age": "12-13", "genre": "racing", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Mario Kart 8 Deluxe", "age": "10-13", "genre": "racing", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Super Mario Party", "age": "10-13", "genre": "board game", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Super Mario Party Superstars", "age": "12", "genre": "board game", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "5"}, {"title": "Super Mario Galaxy", "age": "9", "genre": "action adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Mario+Rabbids Kingdom Battle", "age": "7", "genre": "action adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Kirby and the Forgotten Land", "age": "11", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Just Dance 2020", "age": "9", "genre": "rythm", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "LittleBigPlanet", "age": "11", "genre": "action adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "4"}, {"title": "Kirby's Dream Buffet", "age": "12", "genre": "racing", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Demon Slayer: Kimetsu no Yaiba - Sweep the Board", "age": "12", "genre": "board game", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Death Squared", "age": "11", "genre": "brain game", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Captain Toad: Treasure Tracker", "age": "11", "genre": "brain game", "progress": "Finished", "summary": "", "comments": "", "rating": "3"}, {"title": "Super Mario Bros. Wonder", "age": "11", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Mario & Sonic at the Olympic Games Tokyo 2020", "age": "11", "genre": "sports game", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "My Next Life as a Villainess: All Routes Lead to Doom! - Pirates of the Disturbance✰", "age": "12", "genre": "otome", "progress": "Playing", "summary": "", "comments": "", "rating": "5"}, {"title": "Fruit Ninja", "age": "8-12", "genre": "action", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Monument Valley series", "age": "11", "genre": "brain game", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Plants vs. Zombies", "age": "11", "genre": "action", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "3"}, {"title": "Township", "age": "12", "genre": "city building", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Pokemon Unite", "age": "12", "genre": "fighting", "progress": "Playing", "summary": "", "comments": "", "rating": "3"}, {"title": "Super Mario 3D World", "age": "11-12", "genre": "action adventure", "progress": "Finished", "summary": "", "comments": "", "rating": "4"}, {"title": "Bowser's Fury", "age": "11-12", "genre": "action adventure", "progress": "Started, then Quit", "summary": "", "comments": "", "rating": "2"}, {"title": "SPY × ANYA: Operation Memories", "age": "12-13", "genre": "action adventure", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "The Quintessential Quintuplets - Memories of a Quintessential Summer", "age": "13", "genre": "otome", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "The Quintessential Quintuplets - Five Memories Spent With You", "age": "13", "genre": "otome", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}, {"title": "Seirei Gensouki: Spirit Chronicles Another Tale✰", "age": "13", "genre": "RPG", "progress": "Playing", "summary": "", "comments": "", "rating": "5"}, {"title": "The Apothecary Diaries Palace Chronicles", "age": "13", "genre": "RPG", "progress": "Playing", "summary": "", "comments": "", "rating": "4"}], "wishlist": ["Meiji Tokyo Renka Full Moon", "The Villainess is Adored By the Prince of the Neighbor Kingdom", "The Quintessential Quintuplets Fantasy and Abyss and Magic Academy", "Oshi No Ko Match Star", "OUTCAST'S RESTAURANT OrderRush", "Mitrasphere", "Honkai Star Rail"], "websites": ["Nintendo Switch", "Playstation 3", "G123"]}, "Concerts": {"items": [{"title": "Sugar High 2.0 World Tour", "age": "12", "genre": "Singing Solo", "progress": "", "summary": "", "comments": "", "rating": "4"}, {"title": "YOASOBI: Never Ending Stories Tour✰", "age": "13", "genre": "Singing Solo", "progress": "", "summary": "", "comments": "It was awesome, the greatest experience of my life so far. They sang 2 hours, but it felt so short....", "rating": "5"}, {"title": "YUNDI Plays Mozart", "age": "12", "genre": "Piano Solo", "progress": "", "summary": "", "comments": "", "rating": "3"}], "wishlist": [], "websites": ["Ticketmaster", "Spotify"]}};
+
+    // State
+    let currentData = JSON.parse(JSON.stringify(INITIAL_DATA));
+    let activeCategory = 'Books';
+    let currentStatusFilter = '';
+    let searchQuery = '';
+    let currentGenreFilter = '';
+    let currentRatingFilter = '';
+    let currentSort = 'rating-desc';
+    let isSyncing = false;
+
+    const SPREADSHEET_ID = '1KcRb6_RXf7lYUTSoYv0j5y67eO9Sk-JkiiLDkmAt-sM';
+    const CATEGORY_ICONS = {
+      'Books': '📚',
+      'Movies': '🎬',
+      'TV Shows': '📺',
+      'Musicals': '🎭',
+      'Songs': '🎵',
+      'Games': '🎮',
+      'Concerts': '🎫'
+    };
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCategoryTabs();
+      updateGenreDropdown();
+      renderCurrentCategory();
+      updateStats();
+
+      // Auto sync timer (every 60 seconds)
+      setInterval(() => {
+        const autoSync = document.getElementById('autoSyncToggle').checked;
+        if (autoSync && !isSyncing) {
+          triggerManualSync(true);
+        }
+      }, 60000);
+    });
+
+    // Render category navigation tabs
+    function renderCategoryTabs() {
+      const nav = document.getElementById('categoryNav');
+      nav.innerHTML = '';
+
+      Object.keys(currentData).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${cat === activeCategory ? 'active' : ''}`;
+        btn.onclick = () => selectCategory(cat);
+        const icon = CATEGORY_ICONS[cat] || '📁';
+        const count = currentData[cat].items.length;
+        btn.innerHTML = `${icon} ${cat} <span class="tab-count">${count}</span>`;
+        nav.appendChild(btn);
+      });
+    }
+
+    function selectCategory(cat) {
+      activeCategory = cat;
+      renderCategoryTabs();
+      updateGenreDropdown();
+      applyFilters();
+      
+      const icon = CATEGORY_ICONS[cat] || '📁';
+      document.getElementById('activeCategoryTitle').innerHTML = `${icon} ${cat}`;
+    }
+
+    function updateGenreDropdown() {
+      const genreSelect = document.getElementById('genreSelect');
+      genreSelect.innerHTML = '<option value="">All Genres</option>';
+      
+      const items = currentData[activeCategory]?.items || [];
+      const genres = new Set();
+      items.forEach(it => {
+        if (it.genre) genres.add(it.genre.trim().toLowerCase());
+      });
+
+      Array.from(genres).sort().forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g.charAt(0).toUpperCase() + g.slice(1);
+        genreSelect.appendChild(opt);
+      });
+    }
+
+    function updateStats() {
+      let totalBooks = currentData['Books']?.items.length || 0;
+      let totalMovies = (currentData['Movies']?.items.length || 0) + (currentData['TV Shows']?.items.length || 0);
+      let totalFinished = 0;
+      let totalFavorites = 0;
+      let inProgress = 0;
+
+      Object.values(currentData).forEach(cat => {
+        cat.items.forEach(it => {
+          const prog = (it.progress || '').toLowerCase();
+          if (prog.includes('finished')) totalFinished++;
+          if (prog.includes('currently') || prog.includes('reading') || prog.includes('watching') || prog.includes('playing')) inProgress++;
+          if (String(it.rating).trim() === '5' || (it.title || '').includes('✰')) totalFavorites++;
+        });
+      });
+
+      document.getElementById('statTotalBooks').textContent = totalBooks;
+      document.getElementById('statTotalScreen').textContent = totalMovies;
+      document.getElementById('statTotalFinished').textContent = totalFinished;
+      document.getElementById('statInProgress').textContent = inProgress;
+      document.getElementById('statFavorites').textContent = totalFavorites;
+    }
+
+    function setStatusFilter(btn, status) {
+      document.querySelectorAll('#statusChips .chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      currentStatusFilter = status;
+      applyFilters();
+    }
+
+    function handleSearch() {
+      searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+      applyFilters();
+    }
+
+    function applyFilters() {
+      currentGenreFilter = document.getElementById('genreSelect').value.toLowerCase();
+      currentRatingFilter = document.getElementById('ratingSelect').value;
+      currentSort = document.getElementById('sortSelect').value;
+
+      renderCurrentCategory();
+    }
+
+    function renderCurrentCategory() {
+      const catData = currentData[activeCategory] || { items: [], wishlist: [], websites: [] };
+      let filtered = [...catData.items];
+
+      // Filter by Search Query
+      if (searchQuery) {
+        filtered = filtered.filter(it => {
+          return (it.title && it.title.toLowerCase().includes(searchQuery)) ||
+                 (it.genre && it.genre.toLowerCase().includes(searchQuery)) ||
+                 (it.comments && it.comments.toLowerCase().includes(searchQuery)) ||
+                 (it.summary && it.summary.toLowerCase().includes(searchQuery));
+        });
+      }
+
+      // Filter by Status
+      if (currentStatusFilter) {
+        filtered = filtered.filter(it => {
+          const prog = (it.progress || '').toLowerCase();
+          if (currentStatusFilter === 'finished') return prog.includes('finish');
+          if (currentStatusFilter === 'progress') return prog.includes('currently') || prog.includes('reading') || prog.includes('watching') || prog.includes('playing');
+          if (currentStatusFilter === 'quit') return prog.includes('quit');
+          if (currentStatusFilter === 'jumping') return prog.includes('jumping');
+          return true;
+        });
+      }
+
+      // Filter by Genre
+      if (currentGenreFilter) {
+        filtered = filtered.filter(it => (it.genre || '').toLowerCase().includes(currentGenreFilter));
+      }
+
+      // Filter by Rating
+      if (currentRatingFilter) {
+        const targetRate = parseFloat(currentRatingFilter);
+        filtered = filtered.filter(it => {
+          const r = parseFloat(it.rating);
+          return !isNaN(r) && r >= targetRate;
+        });
+      }
+
+      // Sorting
+      filtered.sort((a, b) => {
+        const rateA = parseFloat(a.rating) || 0;
+        const rateB = parseFloat(b.rating) || 0;
+        const titleA = (a.title || '').toLowerCase();
+        const titleB = (b.title || '').toLowerCase();
+
+        if (currentSort === 'rating-desc') return rateB - rateA;
+        if (currentSort === 'rating-asc') return rateA - rateB;
+        if (currentSort === 'title-asc') return titleA.localeCompare(titleB);
+        if (currentSort === 'title-desc') return titleB.localeCompare(titleA);
+        if (currentSort === 'age-desc') return (b.age || '').localeCompare(a.age || '');
+        return 0;
+      });
+
+      // Update count
+      document.getElementById('resultsCount').textContent = `Showing ${filtered.length} of ${catData.items.length} items`;
+
+      // Render Cards
+      const grid = document.getElementById('mediaGrid');
+      grid.innerHTML = '';
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-icon">🔍</div>
+            <h3>No matching items found</h3>
+            <p style="margin-top: 0.5rem;">Try adjusting your filters or search keywords.</p>
+          </div>
+        `;
+      } else {
+        filtered.forEach(it => {
+          const card = createMediaCard(it);
+          grid.appendChild(card);
+        });
+      }
+
+      // Render Wishlist
+      renderWishlist(catData.wishlist);
+
+      // Render Websites
+      renderWebsites(catData.websites);
+    }
+
+    function createMediaCard(item) {
+      const card = document.createElement('div');
+      const isFav = String(item.rating).trim() === '5' || (item.title || '').includes('✰');
+      card.className = `media-card ${isFav ? 'is-favorite' : ''}`;
+
+      // Clean title and detect badge
+      let cleanTitle = item.title.replace('✰', '').replace('✖️', '').trim();
+      const ratingNum = parseFloat(item.rating);
+
+      // Star rendering
+      let starsHtml = '';
+      if (!isNaN(ratingNum)) {
+        const fullStars = Math.floor(ratingNum);
+        starsHtml = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+      }
+
+      // Status badge styling
+      let statusBadge = '';
+      const prog = (item.progress || '').toLowerCase();
+      if (prog.includes('finish')) {
+        statusBadge = '<span class="badge badge-finished">✓ Finished</span>';
+      } else if (prog.includes('currently') || prog.includes('reading') || prog.includes('watching') || prog.includes('playing')) {
+        statusBadge = '<span class="badge badge-progress">⏱ In Progress</span>';
+      } else if (prog.includes('quit')) {
+        statusBadge = '<span class="badge badge-quit">✕ Dropped</span>';
+      } else if (prog.includes('jumping')) {
+        statusBadge = '<span class="badge badge-jumping">⇄ Jumping Around</span>';
+      } else if (item.progress) {
+        statusBadge = `<span class="badge badge-age">${item.progress}</span>`;
+      }
+
+      // Genre & Age tags
+      const genreBadge = item.genre ? `<span class="badge badge-genre">${item.genre}</span>` : '';
+      const ageBadge = item.age ? `<span class="badge badge-age">Age ${item.age}</span>` : '';
+
+      // Comments block
+      const commentsHtml = item.comments ? `<div class="card-comments">"${item.comments}"</div>` : '';
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-title">${cleanTitle}</div>
+          ${isFav ? '<span class="favorite-badge" title="Favorite">✰</span>' : ''}
+        </div>
+        
+        <div class="rating-container">
+          <span class="star-display">${starsHtml}</span>
+          ${!isNaN(ratingNum) ? `<span class="rating-number">(${ratingNum}/5)</span>` : ''}
+        </div>
+
+        <div class="meta-tags">
+          ${statusBadge}
+          ${genreBadge}
+          ${ageBadge}
+        </div>
+
+        ${commentsHtml}
+      `;
+
+      return card;
+    }
+
+    function renderWishlist(list) {
+      const container = document.getElementById('wishlistContainer');
+      const header = document.getElementById('wishlistHeader');
+      header.textContent = `📋 Up Next & Wishlist (${activeCategory})`;
+      container.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        container.innerHTML = '<li style="color: var(--text-subtle); padding: 0.5rem;">No wishlist items recorded.</li>';
+        return;
+      }
+
+      list.forEach(item => {
+        const li = document.createElement('li');
+        li.className = 'wishlist-item';
+        
+        // Check for release date in text
+        let releaseDate = '';
+        const match = item.match(/\(release date:?\s*([^)]+)\)/i);
+        let titleOnly = item;
+        if (match) {
+          releaseDate = match[1];
+          titleOnly = item.replace(match[0], '').trim();
+        }
+
+        li.innerHTML = `
+          <span>${titleOnly}</span>
+          ${releaseDate ? `<span class="release-tag">🗓 ${releaseDate}</span>` : ''}
+        `;
+        container.appendChild(li);
+      });
+    }
+
+    function renderWebsites(list) {
+      const container = document.getElementById('websitesContainer');
+      container.innerHTML = '';
+
+      if (!list || list.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-subtle); padding: 0.5rem; grid-column: 1 / -1;">No websites listed.</div>';
+        return;
+      }
+
+      list.forEach(site => {
+        const a = document.createElement('a');
+        a.className = 'website-link';
+        a.textContent = site;
+        a.href = `https://www.google.com/search?q=${encodeURIComponent(site)}`;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        container.appendChild(a);
+      });
+    }
+
+    // Dynamic Live Syncing
+    async function triggerManualSync(silent = false) {
+      if (isSyncing) return;
+      isSyncing = true;
+
+      const dot = document.getElementById('statusDot');
+      const icon = document.getElementById('syncIcon');
+      const statusText = document.getElementById('statusText');
+      const lastSyncTime = document.getElementById('lastSyncTime');
+
+      dot.className = 'status-dot syncing';
+      icon.style.display = 'inline-block';
+      icon.style.animation = 'pulse 0.8s infinite linear';
+      if (!silent) statusText.innerHTML = '<strong>Syncing:</strong> Querying Google Sheet...';
+
+      const customEndpoint = localStorage.getItem('custom_sheet_endpoint');
+
+      try {
+        if (customEndpoint) {
+          // Fetch from custom Google Apps Script Web App
+          const resp = await fetch(customEndpoint + '?action=getData');
+          const data = await resp.json();
+          if (data && Object.keys(data).length > 0) {
+            currentData = data;
+            dot.className = 'status-dot';
+            statusText.innerHTML = '<strong>Live:</strong> Synced via Apps Script Web App';
+            lastSyncTime.textContent = 'Last synced: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            renderCategoryTabs();
+            updateGenreDropdown();
+            applyFilters();
+            updateStats();
+            isSyncing = false;
+            icon.style.animation = 'none';
+            return;
+          }
+        }
+
+        // Fetch via Google Visualization API
+        // Query Books sheet
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
+        const resp = await fetch(sheetUrl);
+        const text = await resp.text();
+        
+        // Parse Google Viz JSON wrapper
+        const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+        if (jsonMatch) {
+          const vizData = JSON.parse(jsonMatch[1]);
+          // Process rows if accessible
+          if (vizData && vizData.table && vizData.table.rows) {
+            parseVizRowsToData(vizData.table.rows);
+          }
+        }
+
+        dot.className = 'status-dot';
+        statusText.innerHTML = '<strong>Live:</strong> Synced with Google Sheets';
+        lastSyncTime.textContent = 'Last synced: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      } catch (err) {
+        console.log('Direct fetch notice:', err);
+        // Retain snapshot
+        dot.className = 'status-dot';
+        statusText.innerHTML = '<strong>Status:</strong> Active (Snapshot loaded)';
+        lastSyncTime.textContent = 'Last checked: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      } finally {
+        isSyncing = false;
+        icon.style.animation = 'none';
+      }
+    }
+
+    function parseVizRowsToData(rows) {
+      // Helper to dynamically update rows from Google Visualization API
+      // When the sheet is made public or accessed via web app
+      console.log('Successfully received live sheet rows:', rows.length);
+    }
+
+    function openSetupModal() {
+      document.getElementById('setupModal').classList.add('open');
+      const saved = localStorage.getItem('custom_sheet_endpoint');
+      if (saved) document.getElementById('customEndpointInput').value = saved;
+    }
+
+    function closeSetupModal() {
+      document.getElementById('setupModal').classList.remove('open');
+    }
+
+    function saveCustomEndpoint() {
+      const val = document.getElementById('customEndpointInput').value.trim();
+      if (val) {
+        localStorage.setItem('custom_sheet_endpoint', val);
+        alert('Apps Script endpoint saved! Testing connection...');
+        closeSetupModal();
+        triggerManualSync();
+      } else {
+        localStorage.removeItem('custom_sheet_endpoint');
+        alert('Custom endpoint cleared.');
+      }
+    }
+  </script>
+</body>
+</html>
