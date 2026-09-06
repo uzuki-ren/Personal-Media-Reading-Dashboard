@@ -1386,19 +1386,22 @@
           }
         }
 
-        // Fetch via Google Visualization API
-        // Query Books sheet
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json`;
+        // Fetch the currently active tab using gviz
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(activeCategory)}`;
         const resp = await fetch(sheetUrl);
         const text = await resp.text();
-        
-        // Parse Google Viz JSON wrapper
+
         const jsonMatch = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
         if (jsonMatch) {
           const vizData = JSON.parse(jsonMatch[1]);
-          // Process rows if accessible
           if (vizData && vizData.table && vizData.table.rows) {
             parseVizRowsToData(vizData.table.rows);
+            
+            // Re-render UI with the updated data
+            renderCategoryTabs();
+            updateGenreDropdown();
+            applyFilters();
+            updateStats();
           }
         }
 
@@ -1406,8 +1409,7 @@
         statusText.innerHTML = '<strong>Live:</strong> Synced with Google Sheets';
         lastSyncTime.textContent = 'Last synced: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
       } catch (err) {
-        console.log('Direct fetch notice:', err);
-        // Retain snapshot
+        console.error('Direct fetch error:', err);
         dot.className = 'status-dot';
         statusText.innerHTML = '<strong>Status:</strong> Active (Snapshot loaded)';
         lastSyncTime.textContent = 'Last checked: ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -1418,9 +1420,29 @@
     }
 
     function parseVizRowsToData(rows) {
-      // Helper to dynamically update rows from Google Visualization API
-      // When the sheet is made public or accessed via web app
-      console.log('Successfully received live sheet rows:', rows.length);
+      if (!currentData[activeCategory]) {
+        currentData[activeCategory] = { items: [], wishlist: [], websites: [] };
+      }
+
+      // Maps columns: 0: Title, 1: Age, 2: Genre, 3: Progress, 4: Summary, 5: Comments, 6: Rating
+      const newItems = rows.map(r => {
+        const c = r.c || [];
+        const getVal = idx => (c[idx] && c[idx].v !== null && c[idx].v !== undefined) ? String(c[idx].v).trim() : '';
+
+        return {
+          title: getVal(0),
+          age: getVal(1),
+          genre: getVal(2),
+          progress: getVal(3),
+          summary: getVal(4),
+          comments: getVal(5),
+          rating: getVal(6)
+        };
+      }).filter(item => item.title && item.title.toLowerCase() !== 'title');
+
+      if (newItems.length > 0) {
+        currentData[activeCategory].items = newItems;
+      }
     }
 
     function openSetupModal() {
